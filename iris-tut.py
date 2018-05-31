@@ -93,3 +93,35 @@ axes[1].plot(train_accuracy_results)
 
 plt.show()
 
+test_fp = "/home/zahid/Desktop/tensorflow-tut/datasets/iris_test.csv"
+test_dataset = tf.data.TextLineDataset(test_fp)
+
+test_dataset = test_dataset.skip(1)             # skip header row
+test_dataset = test_dataset.map(parse_csv)      # parse each row with the funcition created earlier
+test_dataset = test_dataset.shuffle(1000)       # randomize
+test_dataset = test_dataset.batch(32)           # use the same batch size as the training set
+
+
+test_accuracy = tfe.metrics.Accuracy()
+
+for (x, y) in test_dataset:
+  prediction = tf.argmax(model(x), axis=1, output_type=tf.int32)
+  test_accuracy(prediction, y)
+
+print("Test set accuracy: {:.3%}".format(test_accuracy.result()))
+
+
+class_ids = ["Iris setosa", "Iris versicolor", "Iris virginica"]
+
+predict_dataset = tf.convert_to_tensor([
+            [5.1,3.3,1.7,0.5],
+            [5.9,3.0,4.2,1.5],
+            [6.9,3.1,5.4,2.1]
+        ])
+
+predictions = model(predict_dataset)
+
+for i, logits in enumerate(predictions):
+    class_idx = tf.argmax(logits).numpy()
+    name = class_ids[class_idx]
+    print("Example {} prediction: {}".format(i,name))
