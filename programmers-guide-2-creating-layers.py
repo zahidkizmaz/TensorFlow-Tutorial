@@ -47,13 +47,17 @@ init = tf.global_variables_initializer()
 sess.run(init)
 print(sess.run(y_pred))
 
+
+
 loss = tf.losses.mean_squared_error(labels=y_true, predictions= y_pred)
 print(sess.run(loss))
 
 optimizer = tf.train.GradientDescentOptimizer(0.01)
 train = optimizer.minimize(loss)
+writer = tf.summary.FileWriter(".", sess.graph)
 
 for i in range(100):
     _, loss_value = sess.run((train, loss))
     print(loss_value)
 print(sess.run(y_pred))
+writer.close()
